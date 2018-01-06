@@ -8,9 +8,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -67,6 +70,7 @@ public class get_message extends AppCompatActivity implements View.OnClickListen
                     project.setText("项目:" + project_name);
 //                    area.setText("区域:"+area_info);
                     number.setText("手机号:" + number_info);
+                    initData(number_info);
                     Log.d("aaaaa", number_info);
                     new get_messages().start();
                     break;
@@ -91,10 +95,12 @@ public class get_message extends AppCompatActivity implements View.OnClickListen
                 work = true;
                 System.out.println("成功："+message_info);
                 message_info_true = message_info;
-                Pattern p = Pattern.compile(".*是(\\d+).*");
+                Pattern p = Pattern.compile("】(\\d+)");
                 Matcher m = p.matcher(message_info_true);
                 if(m.find()){
                     message.setText("短信验证码:"+m.group(1));
+                    initcode("手机号"+number_info+"&"+"验证码："+m.group(1),m.group(1));
+
                 }
 
                 break;
@@ -174,8 +180,10 @@ public class get_message extends AppCompatActivity implements View.OnClickListen
                     }
                     System.out.println("项目："+resultData);
                     String [] arr=resultData.split("&");
-                    project_info = arr[0];
-                    project_name = arr[1];
+                    String i = arr[6];
+                    String [] arr1=i.split("\\n");
+                    project_info = arr1[1];
+                    project_name = arr[7];
                     Message message = new Message();
                     message.what = 2;
                     handler.sendMessage(message);//将Message对象发送出去
@@ -319,6 +327,141 @@ public class get_message extends AppCompatActivity implements View.OnClickListen
                     break;
             }
 
+        }
+    }
+    private void initData(String num) {
+        String filePath = "/sdcard/Test/";
+        String fileName = "iphone_num.txt";
+        String fileName1 = "iphone_num_one.txt";
+
+        writeTxtToFile(num, filePath, fileName);
+        writeTxtToFile_one(num, filePath, fileName1);
+    }
+    private void initcode(String num,String num1) {
+        String filePath2 = "/sdcard/Test/";
+        String fileName2 = "iphone_num_code.txt";
+        String fileName3 = "iphone_num_code_one.txt";
+
+        writeTxtToFile_code(num, filePath2, fileName2);
+        writeTxtToFile_code_one(num1, filePath2, fileName3);
+    }
+
+    // 将字符串写入到文本文件中
+    public void writeTxtToFile(String strcontent, String filePath, String fileName) {
+        //生成文件夹之后，再生成文件，不然会出错
+        makeFilePath(filePath, fileName);
+
+        String strFilePath = filePath+fileName;
+        // 每次写入时，都换行写
+        String strContent = strcontent + "\r\n";
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                Log.d("TestFile", "Create the file:" + strFilePath);
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+            RandomAccessFile raf = new RandomAccessFile(file, "rwd");
+            raf.seek(file.length());
+            raf.write(strContent.getBytes());
+            raf.close();
+        } catch (Exception e) {
+            Log.e("TestFile", "Error on write File:" + e);
+        }
+    }
+    // 将字符串写入到文本文件中，覆盖
+    public void writeTxtToFile_one(String strcontent, String filePath, String fileName) {
+        //生成文件夹之后，再生成文件，不然会出错
+        makeFilePath(filePath, fileName);
+
+        String strFilePath = filePath+fileName;
+        // 每次写入时，都换行写
+        String strContent = strcontent + "\r\n";
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                Log.d("TestFile", "Create the file:" + strFilePath);
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+            FileOutputStream out = new FileOutputStream(file);
+            out.write(strContent.getBytes());
+            out.flush();
+        } catch (Exception e) {
+            Log.e("TestFile", "Error on write File:" + e);
+        }
+    }
+    // 将验证码写入到文本文件中
+    public void writeTxtToFile_code(String strcontent, String filePath, String fileName) {
+        //生成文件夹之后，再生成文件，不然会出错
+        makeFilePath(filePath, fileName);
+
+        String strFilePath = filePath+fileName;
+        // 每次写入时，都换行写
+        String strContent = strcontent + "\r\n";
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                Log.d("TestFile", "Create the file:" + strFilePath);
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+            RandomAccessFile raf = new RandomAccessFile(file, "rwd");
+            raf.seek(file.length());
+            raf.write(strContent.getBytes());
+            raf.close();
+        } catch (Exception e) {
+            Log.e("TestFile", "Error on write File:" + e);
+        }
+    }
+    // 将验证码写入到文本文件中，覆盖
+    public void writeTxtToFile_code_one(String strcontent, String filePath, String fileName) {
+        //生成文件夹之后，再生成文件，不然会出错
+        makeFilePath(filePath, fileName);
+        String strFilePath = filePath+fileName;
+        // 每次写入时，都换行写
+        String strContent = strcontent + "\r\n";
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                Log.d("TestFile", "Create the file:" + strFilePath);
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }else file.delete();
+
+            FileOutputStream out = new FileOutputStream(file);
+            out.write(strContent.getBytes());
+            out.flush();
+        } catch (Exception e) {
+            Log.e("TestFile", "Error on write File:" + e);
+        }
+    }
+
+    // 生成文件
+    public File makeFilePath(String filePath, String fileName) {
+        File file = null;
+        makeRootDirectory(filePath);
+        try {
+            file = new File(filePath + fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
+    // 生成文件夹
+    public static void makeRootDirectory(String filePath) {
+        File file = null;
+        try {
+            file = new File(filePath);
+            if (!file.exists()) {
+                file.mkdir();
+            }
+        } catch (Exception e) {
+            Log.i("error:", e+"");
         }
     }
 }
