@@ -6,6 +6,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,9 +18,6 @@ import java.net.URLConnection;
 
 
 public class MainActivity extends AppCompatActivity {
-//    TextView text01 = (TextView)findViewById(R.id.test01);
-//    TextView text02 = (TextView)findViewById(R.id.test02);
-//    TextView text03 = (TextView)findViewById(R.id.test03);
     TextView text01;
     TextView text02;
     TextView text03;
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("dd",IMEI);
         Log.d("dd1",NativePhoneNumber);
-        Button btn_refresh = (Button)findViewById(R.id.btn_refresh);
+        ImageButton btn_refresh = (ImageButton)findViewById(R.id.btn_refresh);
         btn_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button btn_message = (Button)findViewById(R.id.btn_message);
+        ImageButton btn_message = (ImageButton)findViewById(R.id.btn_message);
         btn_message.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

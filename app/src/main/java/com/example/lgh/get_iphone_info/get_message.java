@@ -6,6 +6,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class get_message extends AppCompatActivity implements View.OnClickListener{
     TextView resText,project,area,number,message;
-    Button getBut,getBut1;
+    ImageButton getBut,getBut1;
     MyHandler handler;
     String token,token_info,money,project_info,project_name,area_info,number_info,message_info,message_info_true;
     @Override
@@ -36,9 +37,9 @@ public class get_message extends AppCompatActivity implements View.OnClickListen
         number=(TextView)findViewById(R.id.number);
         message=(TextView)findViewById(R.id.message);
 
-        getBut=(Button)findViewById(R.id.getBut);
+        getBut=(ImageButton)findViewById(R.id.getBut);
         getBut.setOnClickListener(this);
-        getBut1=(Button)findViewById(R.id.getBut1);
+        getBut1=(ImageButton)findViewById(R.id.getBut1);
         getBut1.setOnClickListener(this);
 
         handler=new MyHandler();
@@ -83,19 +84,21 @@ public class get_message extends AppCompatActivity implements View.OnClickListen
     }
     public void get_message_info(){
         boolean work = false;
-        while (work == false){
+        int count = 0;
+        while (work == false & count<10){
             try{
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
             new get_messages().start();
-            System.out.println("正在等待：");
+            count += 1;
+            System.out.println("正在等待："+count);
             while (message_info.indexOf("False")==-1){
                 work = true;
                 System.out.println("成功："+message_info);
                 message_info_true = message_info;
-                Pattern p = Pattern.compile("】(\\d+)");
+                Pattern p = Pattern.compile("码(\\d+)");
                 Matcher m = p.matcher(message_info_true);
                 if(m.find()){
                     message.setText("短信验证码:"+m.group(1));
@@ -427,7 +430,7 @@ public class get_message extends AppCompatActivity implements View.OnClickListen
                 Log.d("TestFile", "Create the file:" + strFilePath);
                 file.getParentFile().mkdirs();
                 file.createNewFile();
-            }else file.delete();
+            }
 
             FileOutputStream out = new FileOutputStream(file);
             out.write(strContent.getBytes());

@@ -35,21 +35,24 @@
 
     </RelativeLayout>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_refresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="刷新手机信息"
+        android:layout_width="139sp"
+        android:layout_height="28sp"
+        android:contentDescription="@string/refresh"
         android:layout_below="@+id/relativeLayout2"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="57dp" />
+        android:layout_marginTop="57dp"
+        android:src="@drawable/selector"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="获取短信验证码"
+        android:layout_width="139sp"
+        android:layout_height="28sp"
+        android:contentDescription="@string/get_iphone"
+        android:layout_marginTop="31dp"
+        android:src="@drawable/selector2"
         android:layout_below="@+id/btn_refresh"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp" />
+        android:layout_alignLeft="@+id/btn_refresh"
+        android:layout_alignStart="@+id/btn_refresh" />
 </RelativeLayout>
