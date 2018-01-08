@@ -18,17 +18,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
              />
-
-
-        <TextView
-        android:id="@+id/test02"
-        android:layout_below="@+id/test01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
         <TextView
             android:id="@+id/test03"
-            android:layout_below="@+id/test02"
+            android:layout_below="@+id/test01"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
@@ -40,19 +32,64 @@
         android:layout_width="139sp"
         android:layout_height="28sp"
         android:contentDescription="@string/refresh"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/selector"
         android:layout_below="@+id/relativeLayout2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="57dp"
-        android:src="@drawable/selector"/>
+        android:layout_centerHorizontal="true" />
+
+
+    <TextView
+        android:id="@+id/resText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/getBut"
+        />
+    <TextView
+        android:id="@+id/project"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/resText"
+        />
+    <TextView
+        android:id="@+id/area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/project"
+        />
+    <TextView
+        android:id="@+id/number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/area"
+        />
+
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/getBut1"
+        />
 
     <ImageButton
-        android:id="@+id/btn_message"
+        android:id="@+id/getBut1"
         android:layout_width="139sp"
         android:layout_height="28sp"
-        android:contentDescription="@string/get_iphone"
-        android:layout_marginTop="31dp"
-        android:src="@drawable/selector2"
+        android:contentDescription="@string/get_message"
+        android:src="@drawable/selector4"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/btn_refresh"
+        android:layout_alignStart="@+id/btn_refresh"
+        android:layout_marginBottom="182dp" />
+
+    <ImageButton
+        android:id="@+id/getBut"
+        android:layout_width="139sp"
+        android:layout_height="28sp"
+        android:contentDescription="@string/decs"
+        android:src="@drawable/selector3"
         android:layout_below="@+id/btn_refresh"
         android:layout_alignLeft="@+id/btn_refresh"
-        android:layout_alignStart="@+id/btn_refresh" />
+        android:layout_alignStart="@+id/btn_refresh"
+        android:layout_marginTop="46dp" />
 </RelativeLayout>
