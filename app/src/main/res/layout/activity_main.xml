@@ -92,4 +92,69 @@
         android:layout_alignLeft="@+id/btn_refresh"
         android:layout_alignStart="@+id/btn_refresh"
         android:layout_marginTop="46dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="启动按键精灵"
+        android:layout_marginTop="67dp"
+        android:id="@+id/start_anjian"
+        android:layout_alignTop="@+id/getBut1"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="卸载APK"
+        android:id="@+id/uninstall"
+        android:layout_below="@+id/start_anjian"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="安装APK"
+        android:id="@+id/install_JM"
+        android:layout_below="@+id/start_anjian"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="下载"
+        android:id="@+id/downapk"
+        android:layout_below="@+id/start_anjian"
+        android:layout_toRightOf="@+id/message"
+        android:layout_toEndOf="@+id/message" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:id="@+id/progressBar"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/message"
+        android:layout_toEndOf="@+id/message"
+        android:layout_marginLeft="17dp"
+        android:layout_marginStart="17dp" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:id="@+id/progressBar3"
+        android:layout_below="@+id/uninstall"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="14dp"
+        android:layout_marginEnd="14dp" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:id="@+id/progressBar2"
+        android:layout_below="@+id/install_JM"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
