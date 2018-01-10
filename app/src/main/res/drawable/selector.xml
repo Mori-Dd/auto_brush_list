@@ -1,9 +1,0 @@
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_window_focused="false"
-        android:drawable="@drawable/t11"/>
-    <item android:state_focused="true"
-        android:drawable="@drawable/t12"/>
-    <item android:state_pressed="true"
-        android:drawable="@drawable/t12"/>
-    <item android:drawable="@drawable/t11"/>
-</selector>

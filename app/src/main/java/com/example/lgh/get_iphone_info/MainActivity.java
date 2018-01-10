@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -20,30 +22,39 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     TextView text01;
     TextView text03;
     TextView resText,project,area,iphone_number,message;
-    ImageButton getBut,getBut1;
+    Button getBut,getBut1;
     MyHandler handler;
     ProgressBar pro,pro2,pro3;
     File file;
+    Spinner spiEdu;
     Button btn_start_anjian,downapk,install_JM,uninstall;
-    String apk_path,URL_STRING,packageName,currentTempFilePath,token,token_info,money,project_info,project_name,area_info,number_info,message_info,message_info_true;
+    String apk_path,URL_STRING,packageName,currentTempFilePath,token,token_info,resultData_pro,money,project_info,project_name,area_info,number_info,number_second,message_info,message_info_true;
+    private ArrayAdapter<CharSequence> adapteEdu=null;
+    private ArrayList<CharSequence> dataEdu=null;//定义一个集合数据
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //请求ROOT
+        get_root();
+        //下拉列表
+        resultData_pro = "";
+        dataEdu=new ArrayList<CharSequence>();
+        spiEdu=(Spinner)super.findViewById(R.id.choose_pro);
+
         TelephonyManager tm = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
         String IMEI = tm.getDeviceId();//String
         URL_STRING = "http://shouji.360tpcdn.com/171226/b750fedd2b6fc179f5ef7b8c6080f6ab/com.julanling.app_5500.apk";//下载文件的地址
@@ -76,10 +87,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Log.d("dd",IMEI);
         Log.d("dd1",NativePhoneNumber);
-        ImageButton btn_refresh = (ImageButton)findViewById(R.id.btn_refresh);
+        Button btn_refresh = (Button)findViewById(R.id.btn_refresh);
         btn_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 refresh();
             }
         });
@@ -90,9 +102,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         iphone_number=(TextView)findViewById(R.id.number);
         message=(TextView)findViewById(R.id.message);
 
-        getBut=(ImageButton)findViewById(R.id.getBut);
+        getBut=(Button)findViewById(R.id.getBut);
         getBut.setOnClickListener(this);
-        getBut1=(ImageButton)findViewById(R.id.getBut1);
+        getBut1=(Button)findViewById(R.id.getBut1);
         getBut1.setOnClickListener(this);
 
         btn_start_anjian = (Button) findViewById(R.id.start_anjian);
@@ -102,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pro = (ProgressBar)findViewById(R.id.progressBar);
         pro2 = (ProgressBar)findViewById(R.id.progressBar2);
         pro3 = (ProgressBar)findViewById(R.id.progressBar3);
+
 
         downapk = (Button) findViewById(R.id.downapk);
         downapk.setOnClickListener(this);
@@ -113,8 +126,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         uninstall.setOnClickListener(this);
 
         handler=new MyHandler();
-
+        get_list();
     }
+
     public void refresh() {
         onDestroy();
         Intent intent = new Intent(MainActivity.this,MainActivity.class);
@@ -153,18 +167,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
 
         if(v==getBut) {
-            new MainActivity.GetThread().start();//用get方法发送
             boolean work = true;
-            while (work == true) {
-                if (token != null) {
-                    new MainActivity.get_project().start();
-                    Log.d("qqq", token);
-                    break;
-                }
-            }
+//            while (work == true) {
+//                if (token != null) {
+//                    new MainActivity.get_project().start();
+//                    Log.d("qqq", token);
+//                    break;
+//                }
+//            }
             while (work == true) {
                 if (project_info != null) {
-                    Log.d("qqq", project_info);
                     new MainActivity.get_area().start();
                     new MainActivity.get_number().start();
                     break;
@@ -172,12 +184,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             while (work == true) {
                 if (number_info != null) {
+                    number_second = number_info;
+                    number_info = null;
                     resText.setText("账户余额:" + money + "\n");
                     project.setText("项目:" + project_name);
 //                    area.setText("区域:"+area_info);
-                    iphone_number.setText("手机号:" + number_info);
-                    initData(number_info);
-                    Log.d("aaaaa", number_info);
+                    Log.v("sss",number_second);
+                    iphone_number.setText("手机号:" + number_second);
+                    initData(number_second);
+
                     new MainActivity.get_messages().start();
                     break;
                 }
@@ -195,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(v==downapk){
             Toast_message("开始下载APK");
             pro.setVisibility(View.VISIBLE);
+            delete_apk(apk_path);
             new MainActivity.DownApk().start();//发送消息，启动线程运行
         }
         if(v==install_JM){
@@ -228,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Matcher m = p.matcher(message_info_true);
                 if(m.find()){
                     message.setText("短信验证码:"+m.group(1));
-                    initcode("手机号"+number_info+"&"+"验证码："+m.group(1),m.group(1));
+                    initcode("手机号"+number_second+"&"+"验证码："+m.group(1),m.group(1));
 
                 }
                 break;
@@ -264,9 +280,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     token = arr[0];
                     money = arr[1];
 //                    showRes("账号信息：" + resultData);
-                    Message message = new Message();
-                    message.what = 1;
-                    handler.sendMessage(message);//将Message对象发送出去
+//                    Message message = new Message();
+//                    message.what = 1;
+//                    handler.sendMessage(message);//将Message对象发送出去
                 }
 
             } catch (IOException e) {
@@ -291,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             HttpURLConnection conn=null;//声明连接对象
             String urlStr="http://api.shjmpt.com:9002/uGetItems?token="+token+"&tp=ut";
             InputStream is = null;
-            String resultData = "";
+//            String resultData = "";
             try {
                 URL url = new URL(urlStr); //URL对象
                 conn = (HttpURLConnection)url.openConnection(); //使用URL打开一个链接,下面设置这个连接
@@ -303,18 +319,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     BufferedReader bufferReader = new BufferedReader(isr);
                     String inputLine  = "";
                     while((inputLine = bufferReader.readLine()) != null){
-                        resultData += inputLine + "\n";
+                        resultData_pro += inputLine + "\n";
 
                     }
-                    System.out.println("项目："+resultData);
-                    String [] arr=resultData.split("&");
-                    String i = arr[6];
-                    String [] arr1=i.split("\\n");
-                    project_info = arr1[1];
-                    project_name = arr[7];
-                    Message message = new Message();
-                    message.what = 2;
-                    handler.sendMessage(message);//将Message对象发送出去
+
+
+                    System.out.println("项目："+resultData_pro);
+                    String [] arrarr=resultData_pro.split("&");
+                    String ii = arrarr[6];
+                    String [] arr11=ii.split("\\n");
+//                    project_info = arr11[1];
+//                    project_name = arrarr[7];
+//                    Message message = new Message();
+//                    message.what = 4;
+//                    handler.sendMessage(message);//将Message对象发送出去
                 }
 
             } catch (IOException e) {
@@ -343,11 +361,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         resultData += inputLine + "\n";
 
                     }
-                    System.out.println("区域："+resultData);
+//                    System.out.println("区域："+resultData);
                     area_info = resultData;
-                    Message message = new Message();
-                    message.what = 3;
-                    handler.sendMessage(message);//将Message对象发送出去
+//                    Message message = new Message();
+//                    message.what = 3;
+//                    handler.sendMessage(message);//将Message对象发送出去
                 }
 
             } catch (IOException e) {
@@ -380,9 +398,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     System.out.println("手机号："+resultData);
                     String [] arr=resultData.split(";");
                     number_info = arr[0];
-                    Message message = new Message();
-                    message.what = 4;
-                    handler.sendMessage(message);//将Message对象发送出去
+//                    Message message = new Message();
+//                    message.what = 4;
+//                    handler.sendMessage(message);//将Message对象发送出去
                 }
 
             } catch (IOException e) {
@@ -394,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     class get_messages extends Thread{
         public void run(){
             HttpURLConnection conn=null;//声明连接对象
-            String urlStr="http://api.shjmpt.com:9002/pubApi/GMessage?token="+token+"&ItemId="+project_info+"&Phone="+number_info;
+            String urlStr="http://api.shjmpt.com:9002/pubApi/GMessage?token="+token+"&ItemId="+project_info+"&Phone="+number_second;
             Log.d("aaaaa",urlStr);
             System.out.println("连接："+urlStr);
             InputStream is = null;
@@ -415,9 +433,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     System.out.println("短信内容："+resultData);
                     message_info = resultData;
-                    Message message = new Message();
-                    message.what = 5;
-                    handler.sendMessage(message);//将Message对象发送出去
+//                    Message message = new Message();
+//                    message.what = 5;
+//                    handler.sendMessage(message);//将Message对象发送出去
                 }
 
             } catch (IOException e) {
@@ -438,6 +456,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     downapk.setText("下载完成");
                     downapk.setTextColor(Color.RED);
                     Toast_message("下载成功");
+                    install_JM.performClick();
 //                    resText.setText("获取短信验证用户信息:"+token+"\n"+"账户余额:"+money+"\n");
                     break;
                 case 2:
@@ -457,6 +476,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case 4:
 //                    number.setText("手机号:"+number_info);
+
                     break;
                 case 5:
 //                    while (message_info_true != null){
@@ -608,84 +628,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //网络线程，因为不能在主线程访问Intent
-    //安装APK
-    class Install_JM extends Thread{
-        public void run(){
-            Process process = null;
-            OutputStream out = null;
-            InputStream in = null;
-            try {
-                // 请求root
-                process = Runtime.getRuntime().exec("su");
-                out = process.getOutputStream();
-                // 调用安装
-                out.write(("pm install -r " + currentTempFilePath+getFilePath(URL_STRING) + "\n").getBytes());
-                in = process.getInputStream();
-                int len = 0;
-                byte[] bs = new byte[256];
-                while (-1 != (len = in.read(bs))) {
-                    String state = new String(bs, 0, len);
-                    if (state.equals("Success\n")) {
-                        //安装成功后的操作
-                        Message message = handler.obtainMessage();
-                        message.what = 2;
-                        handler.sendMessage(message);
-                    }
-                }
-                // 往handler发送一条消息 更改button的text属性
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-
-                try {
-                    if (out != null) {
-                        out.flush();
-                        out.close();
-                    }
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-    //卸载应用程序
-    class Uninstall extends Thread {
-        public void run() {
-            Process process = null;
-            DataOutputStream dos = null;
-            StringBuilder cmd = new StringBuilder();
-            cmd.append("pm uninstall " + packageName).append("\n");
-            try {
-                process = Runtime.getRuntime().exec("su");
-                dos = new DataOutputStream(process.getOutputStream());
-                dos.writeBytes(cmd + "\n");
-                dos.flush();
-                dos.writeBytes("exit\n");
-                dos.flush();
-                process.waitFor();
-
-            } catch (Exception e) {
-            } finally {
-                try {
-                    if (dos != null) {
-                        dos.close();
-                        Message message = handler.obtainMessage();
-                        message.what = 3;
-                        handler.sendMessage(message);
-                    }
-                    process.destroy();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
     //下载应用程序
     class DownApk extends Thread {
         public void run() {
@@ -719,11 +661,99 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 handler.sendMessage(message);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+                Toast_message("下载链接出错");
             } catch (IOException e) {
                 e.printStackTrace();
+                Toast_message("文件路径出错");
             }
         }
     }
+    //安装APK
+    class Install_JM extends Thread{
+        public void run(){
+            Process process = null;
+            OutputStream out = null;
+            InputStream in = null;
+            try {
+                // 请求root
+                process = Runtime.getRuntime().exec("su");
+                out = process.getOutputStream();
+                // 调用安装
+                out.write(("pm install -r " + apk_path + "\n").getBytes());
+                in = process.getInputStream();
+                int len = 0;
+                byte[] bs = new byte[256];
+                while (-1 != (len = in.read(bs))) {
+                    String state = new String(bs, 0, len);
+                    System.out.print("成功:"+state);
+                    while (true){
+                        if (state.equals("Success\n")) {
+                            //安装成功后的操作
+                            System.out.print("成功:"+state);
+                            Message message = handler.obtainMessage();
+                            message.what = 2;
+                            handler.sendMessage(message);
+                            break;
+                        }
+                    }
+
+                }
+                // 往handler发送一条消息 更改button的text属性
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast_message("安装包出错");
+            } finally {
+                try {
+                    if (out != null) {
+                        out.flush();
+                        out.close();
+                    }
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+    //卸载应用程序
+    class Uninstall extends Thread {
+        public void run() {
+            Process process = null;
+            DataOutputStream dos = null;
+            StringBuilder cmd = new StringBuilder();
+            cmd.append("pm uninstall " + packageName).append("\n");
+            try {
+                process = Runtime.getRuntime().exec("su");
+                dos = new DataOutputStream(process.getOutputStream());
+                dos.writeBytes(cmd + "\n");
+                dos.flush();
+                dos.writeBytes("exit\n");
+                dos.flush();
+                process.waitFor();
+
+            } catch (Exception e) {
+                Toast_message("卸载出错");
+            } finally {
+                try {
+                    if (dos != null) {
+                        dos.close();
+                        Message message = handler.obtainMessage();
+                        message.what = 3;
+                        handler.sendMessage(message);
+                    }
+                    process.destroy();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * 根据传过来url创建文件
      */
@@ -755,5 +785,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void Toast_message(String toast){
         Toast.makeText(getApplicationContext(), toast,
                 Toast.LENGTH_SHORT).show();
+    }
+    // 请求root
+    private void get_root(){
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec("su");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            Toast_message("请求ROOT出错");
+        }
+    }
+    private void get_list(){
+        new MainActivity.GetThread().start();//用get方法发送
+        boolean work = true;
+        while (work == true) {
+            if (token != null) {
+                new MainActivity.get_project().start();
+                Log.d("qqq", token);
+                break;
+            }
+        }
+        while (work==true){
+            if(resultData_pro!=""){
+                Log.v("aaa",resultData_pro);
+                String [] arr=resultData_pro.split("\\n");
+                String i = arr[0];
+                String [] arr1=i.split("&");
+                int x = arr.length;
+                int y = arr1.length;
+                String []items = new String[x*y];
+                for(int n=0;n<x;n++){
+                    for(int len=0;len<y;len++){
+                        String item = arr[n];
+                        String [] content=item.split("&");
+                        items[len+n*y]=content[len];
+                    }
+                }
+                dataEdu.add("首先:请选择项目");
+                for(int nn=0;nn<x;nn++){
+                    Log.v("aaa",Integer.toString(items.length));
+                    dataEdu.add(items[4*nn]+":"+items[4*nn+1]);
+                }
+
+                adapteEdu=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_spinner_item,dataEdu);
+                adapteEdu.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spiEdu.setAdapter(adapteEdu);
+                spiEdu.setOnItemSelectedListener(new SpinnerSelectedListener());
+
+                break;
+            }
+        }
+    }
+
+    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+                                   long arg3) {
+//            message.setText("你选择的值："+dataEdu.get(arg2));//设置编辑框为获取到的选择值
+            String project_inf = dataEdu.get(arg2).toString();
+            String [] m = project_inf.split(":");
+            project_info = m[0];
+            project_name = m[1];
+        }
+        public void onNothingSelected(AdapterView<?> arg0) {
+        }
     }
 }
