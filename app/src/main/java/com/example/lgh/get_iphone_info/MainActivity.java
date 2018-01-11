@@ -681,6 +681,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     class Install_JM extends Thread{
         public void run(){
 //            Process process = null;
+            //请求ROOT
+            process = null;
+            get_root();
             OutputStream out = null;
             InputStream in = null;
             System.out.print("进入安装:"+apk_path+"\n");
