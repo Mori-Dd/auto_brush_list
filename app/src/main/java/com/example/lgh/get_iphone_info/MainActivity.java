@@ -44,11 +44,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String apk_path,URL_STRING,packageName,currentTempFilePath,token,token_info,resultData_pro,money,project_info,project_name,area_info,number_info,number_second,message_info,message_info_true;
     private ArrayAdapter<CharSequence> adapteEdu=null;
     private ArrayList<CharSequence> dataEdu=null;//定义一个集合数据
+    Process process;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //请求ROOT
+        process = null;
         get_root();
         //下拉列表
         resultData_pro = "";
@@ -59,7 +61,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String IMEI = tm.getDeviceId();//String
         URL_STRING = "http://shouji.360tpcdn.com/171226/b750fedd2b6fc179f5ef7b8c6080f6ab/com.julanling.app_5500.apk";//下载文件的地址
         //APK安装目录
-        currentTempFilePath = "/sdcard/Test";
+        currentTempFilePath = "/sdcard/Test/";
+//        currentTempFilePath = "/data/Test";
         //APK路径
         apk_path = currentTempFilePath+URL_STRING.substring(URL_STRING.lastIndexOf("/"), URL_STRING.length());
         //APK包名
@@ -192,6 +195,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.v("sss",number_second);
                     iphone_number.setText("手机号:" + number_second);
                     initData(number_second);
+                    File file = new File(currentTempFilePath+"iphone_num_code_one.txt");
+                    if (file.exists()){
+                        file.delete();
+                    }
 
                     new MainActivity.get_messages().start();
                     break;
@@ -491,20 +498,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     private void initData(String num) {
-        String filePath = "/sdcard/Test/";
+//        String filePath = "/sdcard/Test/";
         String fileName = "iphone_num.txt";
         String fileName1 = "iphone_num_one.txt";
-
-        writeTxtToFile(num, filePath, fileName);
-        writeTxtToFile_one(num, filePath, fileName1);
+        Log.v("sss",fileName);
+        writeTxtToFile(num, currentTempFilePath, fileName);
+        writeTxtToFile_one(num, currentTempFilePath, fileName1);
     }
     private void initcode(String num,String num1) {
-        String filePath2 = "/sdcard/Test/";
+//        String filePath2 = "/filePath2sdcard/Test/";
         String fileName2 = "iphone_num_code.txt";
         String fileName3 = "iphone_num_code_one.txt";
 
-        writeTxtToFile_code(num, filePath2, fileName2);
-        writeTxtToFile_code_one(num1, filePath2, fileName3);
+        writeTxtToFile_code(num, currentTempFilePath, fileName2);
+        writeTxtToFile_code_one(num1, currentTempFilePath, fileName3);
     }
 
     // 将字符串写入到文本文件中
@@ -538,11 +545,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String strFilePath = filePath+fileName;
         // 每次写入时，都换行写
         String strContent = strcontent + "\r\n";
+        Log.v("ssss",strcontent);
         try {
             File file = new File(strFilePath);
             if (!file.exists()) {
                 Log.d("TestFile", "Create the file:" + strFilePath);
                 file.getParentFile().mkdirs();
+                Log.v("ssss",strFilePath);
                 file.createNewFile();
             }
             FileOutputStream out = new FileOutputStream(file);
@@ -671,37 +680,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //安装APK
     class Install_JM extends Thread{
         public void run(){
-            Process process = null;
+//            Process process = null;
             OutputStream out = null;
             InputStream in = null;
+            System.out.print("进入安装:"+apk_path+"\n");
+            System.out.print("输出process:"+process + "\n");
             try {
+                System.out.print("路径:"+apk_path + "\n");
                 // 请求root
-                process = Runtime.getRuntime().exec("su");
+//                process = Runtime.getRuntime().exec("su");
                 out = process.getOutputStream();
+                System.out.print("输出OUT:"+out + "\n");
                 // 调用安装
                 out.write(("pm install -r " + apk_path + "\n").getBytes());
+                System.out.print("调用安装了:" + "\n");
                 in = process.getInputStream();
                 int len = 0;
                 byte[] bs = new byte[256];
+
                 while (-1 != (len = in.read(bs))) {
                     String state = new String(bs, 0, len);
-                    System.out.print("成功:"+state);
-                    while (true){
-                        if (state.equals("Success\n")) {
-                            //安装成功后的操作
-                            System.out.print("成功:"+state);
-                            Message message = handler.obtainMessage();
-                            message.what = 2;
-                            handler.sendMessage(message);
-                            break;
-                        }
-                    }
+                    System.out.print("成功:"+state + "\n");
 
+                    // 往handler发送一条消息 更改button的text属性
+                    Message message = handler.obtainMessage();
+                    message.what = 2;
+                    handler.sendMessage(message);
+                    break;
+
+
+
+//                    while (true){
+//                        if (state.equals("Success\n")) {
+//                            //安装成功后的操作
+//                            System.out.print("成功:"+state);
+//                            // 往handler发送一条消息 更改button的text属性
+//                            Message message = handler.obtainMessage();
+//                            message.what = 2;
+//                            handler.sendMessage(message);
+//                            break;
+//                        }
+//                    }
                 }
-                // 往handler发送一条消息 更改button的text属性
-
             } catch (IOException e) {
+                System.out.print("出错了1");
                 e.printStackTrace();
+                System.out.print("出错了1");
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast_message("安装包出错");
@@ -715,7 +739,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         in.close();
                     }
                 } catch (IOException e) {
+                    System.out.print("出错了2");
                     e.printStackTrace();
+                    System.out.print("出错了2");
                 }
             }
         }
@@ -758,7 +784,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 根据传过来url创建文件
      */
     private File getFile(String url) {
-        File files = new File("/sdcard/Test/", getFilePath(url));
+        makeRootDirectory(currentTempFilePath);
+        File files = new File(currentTempFilePath, getFilePath(url));
         return files;
     }
     /**
@@ -788,7 +815,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     // 请求root
     private void get_root(){
-        Process process = null;
+
         try {
             process = Runtime.getRuntime().exec("su");
         }
