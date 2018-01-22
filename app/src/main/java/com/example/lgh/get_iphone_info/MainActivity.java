@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }).start();
 
         Log.d("dd",IMEI);
-        Log.d("dd1",NativePhoneNumber);
+        //Log.d("dd1",NativePhoneNumber);
         Button btn_refresh = (Button)findViewById(R.id.btn_refresh);
         btn_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
