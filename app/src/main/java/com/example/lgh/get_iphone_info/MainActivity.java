@@ -25,6 +25,9 @@ import java.net.URLConnection;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
@@ -32,16 +35,16 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    TextView text01;
-    TextView text03;
+    TextView text01,text02,text03;
     TextView resText,project,area,iphone_number,message;
     Button getBut,getBut1;
     MyHandler handler;
     ProgressBar pro,pro2,pro3;
     File file;
+    Boolean isThreadEnd;
     Spinner spiEdu;
     Button btn_start_anjian,downapk,install_JM,uninstall;
-    String apk_path,URL_STRING,packageName,currentTempFilePath,token,token_info,resultData_pro,money,project_info,project_name,area_info,number_info,number_second,message_info,message_info_true;
+    String model,apk_path,URL_STRING,packageName,currentTempFilePath,token,token_info,resultData_pro,money,project_info,project_name,area_info,number_info,number_second,message_info,message_info_true;
     private ArrayAdapter<CharSequence> adapteEdu=null;
     private ArrayList<CharSequence> dataEdu=null;//定义一个集合数据
     Process process;
@@ -62,18 +65,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         URL_STRING = "http://shouji.360tpcdn.com/171226/b750fedd2b6fc179f5ef7b8c6080f6ab/com.julanling.app_5500.apk";//下载文件的地址
         //APK安装目录
         currentTempFilePath = "/sdcard/Test/";
+
 //        currentTempFilePath = "/data/Test";
         //APK路径
         apk_path = currentTempFilePath+URL_STRING.substring(URL_STRING.lastIndexOf("/"), URL_STRING.length());
         //APK包名
         packageName = "com.julanling.app";
 
-        text01 = (TextView)findViewById(R.id.test01);
+        text01 = (TextView)findViewById(R.id.text01);
         text01.setText("IMEI为:"+IMEI);
 
-        String NativePhoneNumber=null;
-        NativePhoneNumber=tm.getLine1Number();
-        text03 = (TextView)findViewById(R.id.test03);
+//        String NativePhoneNumber=null;
+//        NativePhoneNumber=tm.getLine1Number();
+        text03 = (TextView)findViewById(R.id.text03);
+        model = android.os.Build.MODEL;
+        text03.setText("手机型号："+model);
+        text02 = (TextView)findViewById(R.id.text02);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -82,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        text03.setText("ip为："+ip);
+                        text02.setText("ip为："+ip);
                     }
                 });
             }
@@ -129,13 +136,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         uninstall.setOnClickListener(this);
 
         handler=new MyHandler();
+        //获取项目子线程是否结束
+        isThreadEnd = false;
         get_list();
     }
 
+
     public void refresh() {
+
         onDestroy();
         Intent intent = new Intent(MainActivity.this,MainActivity.class);
         startActivity(intent);
+
         Toast_message("刷新手机信息成功");
 
     }
@@ -330,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
 
-
+                    isThreadEnd = true;
                     System.out.println("项目："+resultData_pro);
                     String [] arrarr=resultData_pro.split("&");
                     String ii = arrarr[6];
@@ -652,6 +664,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     if (inputStream != null) {
                         file = getFile(URL_STRING);
+                        Log.v("sss",currentTempFilePath);
                         fileOutputStream = new FileOutputStream(file);
                         byte[] buffer = new byte[1024];
                         int length = 0;
@@ -788,6 +801,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private File getFile(String url) {
         makeRootDirectory(currentTempFilePath);
+        Log.v("ssss",currentTempFilePath);
         File files = new File(currentTempFilePath, getFilePath(url));
         return files;
     }
@@ -838,7 +852,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         while (work==true){
-            if(resultData_pro!=""){
+            if(resultData_pro!=""  & isThreadEnd == true){
                 Log.v("aaa",resultData_pro);
                 String [] arr=resultData_pro.split("\\n");
                 String i = arr[0];
