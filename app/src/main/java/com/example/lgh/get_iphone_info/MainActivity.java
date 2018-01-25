@@ -1,6 +1,7 @@
 package com.example.lgh.get_iphone_info;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,7 +37,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    TextView text01,text02,text03;
+    TextView text01,text02,text03,text04;
     TextView resText,project,area,iphone_number,message;
     Button getBut,getBut1;
     MyHandler handler;
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Boolean isThreadEnd;
     Spinner spiEdu;
     Button btn_start_anjian,downapk,install_JM,uninstall;
-    String model,apk_path,URL_STRING,packageName,currentTempFilePath,token,token_info,resultData_pro,money,project_info,project_name,area_info,number_info,number_second,message_info,message_info_true;
+    String IMEI,IMSI,IP,MODEL,apk_path,URL_STRING,packageName,currentTempFilePath,token,token_info,resultData_pro,money,project_info,project_name,area_info,number_info,number_second,message_info,message_info_true;
     private ArrayAdapter<CharSequence> adapteEdu=null;
     private ArrayList<CharSequence> dataEdu=null;//定义一个集合数据
     Process process;
@@ -60,8 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dataEdu=new ArrayList<CharSequence>();
         spiEdu=(Spinner)super.findViewById(R.id.choose_pro);
 
-        TelephonyManager tm = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
-        String IMEI = tm.getDeviceId();//String
+
         URL_STRING = "http://shouji.360tpcdn.com/171226/b750fedd2b6fc179f5ef7b8c6080f6ab/com.julanling.app_5500.apk";//下载文件的地址
         //APK安装目录
         currentTempFilePath = "/sdcard/Test/";
@@ -72,36 +73,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //APK包名
         packageName = "com.julanling.app";
 
+        //获取手机信息
+        TelephonyManager tm = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+
+        IMEI = null;
+        Log.d("dddd","IMEI："+IMEI);
+        Log.d("dddd","tm："+tm);
+        IMEI = tm.getDeviceId();//String
+        Log.d("dddd",IMEI);
         text01 = (TextView)findViewById(R.id.text01);
         text01.setText("IMEI为:"+IMEI);
 
 //        String NativePhoneNumber=null;
 //        NativePhoneNumber=tm.getLine1Number();
-        text03 = (TextView)findViewById(R.id.text03);
-        model = android.os.Build.MODEL;
-        text03.setText("手机型号："+model);
+
         text02 = (TextView)findViewById(R.id.text02);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 // 获取外网ip
-                final String ip = getNetIp();
+                IP = getNetIp();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        text02.setText("ip为："+ip);
+                        text02.setText("ip为："+IP);
                     }
                 });
             }
         }).start();
+        text03 = (TextView)findViewById(R.id.text03);
+        MODEL = android.os.Build.MODEL;
+        text03.setText("手机型号："+MODEL);
 
-        Log.d("dd",IMEI);
+        IMSI = tm.getSubscriberId();
+        text04 = (TextView) findViewById(R.id.text04);
+        text04.setText("IMSI:"+IMSI);
+
+//        Log.d("dd",IMEI);
         //Log.d("dd1",NativePhoneNumber);
         Button btn_refresh = (Button)findViewById(R.id.btn_refresh);
         btn_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 refresh();
             }
         });
@@ -141,16 +154,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         get_list();
     }
 
-
     public void refresh() {
-
         onDestroy();
+//        finish();
         Intent intent = new Intent(MainActivity.this,MainActivity.class);
         startActivity(intent);
 
         Toast_message("刷新手机信息成功");
 
     }
+
 
     public static String getNetIp() {
         String ip = "";
