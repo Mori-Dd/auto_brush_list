@@ -1,4 +1,4 @@
-package com.example.lgh.get_iphone_info;
+package com.example.administrator.get_iphone_info;
 
 import org.junit.Test;
 

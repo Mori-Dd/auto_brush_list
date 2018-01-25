@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Brush the single</string>
+    <string name="app_name">get_iphone_info</string>
     <string name="decs">刷新账号信息</string>
     <string name="get_message">获取验证码</string>
     <string name="refresh">刷新手机信息</string>

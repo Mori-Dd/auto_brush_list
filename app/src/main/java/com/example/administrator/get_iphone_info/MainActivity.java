@@ -1,7 +1,10 @@
-package com.example.lgh.get_iphone_info;
+package com.example.administrator.get_iphone_info;
+import android.app.AlarmManager;
+import android.app.Application;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -19,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,9 +29,6 @@ import java.net.URLConnection;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
@@ -155,12 +154,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void refresh() {
-        onDestroy();
+        restartApp();
 //        finish();
-        Intent intent = new Intent(MainActivity.this,MainActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(MainActivity.this,MainActivity.class);
+//        startActivity(intent);
 
-        Toast_message("刷新手机信息成功");
+        //Toast_message("刷新手机信息成功");
 
     }
 
@@ -826,10 +825,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String getFilePath(String url) {
         return url.substring(url.lastIndexOf("/"), url.length());
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    //重启APP
+    public void restartApp() {
+        //启动页
+        Intent mStartActivity = new Intent(this, MainActivity.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getActivity(this, mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        System.exit(0);
     }
+
 
     private void delete_apk(String url){
         File file = new File(url);

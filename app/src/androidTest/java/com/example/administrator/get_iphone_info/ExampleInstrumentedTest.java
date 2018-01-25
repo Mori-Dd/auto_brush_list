@@ -1,4 +1,4 @@
-package com.example.lgh.get_iphone_info;
+package com.example.administrator.get_iphone_info;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.lgh.get_iphone_info", appContext.getPackageName());
+        assertEquals("com.example.administrator.get_iphone_info", appContext.getPackageName());
     }
 }
